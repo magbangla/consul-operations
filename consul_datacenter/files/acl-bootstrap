@@ -1,0 +1,29 @@
+----------------DC1-------------------------------------------------
+AccessorID:       d6f0176b-7e51-10a7-dd61-3b71ccb9cd49
+SecretID:         8ef95fb3-486c-6b22-f120-979bc112d1b7
+Description:      Bootstrap Token (Global Management)
+Local:            false
+Create Time:      2022-07-06 03:20:06.222703089 +0000 UTC
+Policies:
+   00000000-0000-0000-0000-000000000001 - global-management
+
+
+---------------DC2----------------------------------------------------
+
+AccessorID:       5b2d0cbc-7cf1-6d9b-d241-171d7c92f27d
+SecretID:         29a7957c-d6a2-ae6f-67f4-d23a078f2294
+Description:      Bootstrap Token (Global Management)
+Local:            false
+Create Time:      2022-07-06 03:22:40.275815797 +0000 UTC
+Policies:
+   00000000-0000-0000-0000-000000000001 - global-management
+
+-----------------custom for dc --created just to test replication---------------------------------------------------------------
+
+AccessorID:       475a6be4-7d7c-994b-876a-d7444d28309d
+SecretID:         b4a901f6-0542-866f-83a0-f7ba94fa9d80
+Description:      replication token
+Local:            false
+Create Time:      2022-07-07 03:04:29.175626049 +0000 UTC
+Policies:
+   00000000-0000-0000-0000-000000000001 - global-management

@@ -1,0 +1,58 @@
+alive: consul-s3.dc1 172.18.0.12:8302
+alive: consul-s1.dc1 172.18.0.10:8302
+clock: 2
+alive: consul-s2.dc1 172.18.0.11:8302
+clock: 3
+alive: consul-s3.dc1 172.18.0.12:8302
+alive: consul-s2.dc1 172.18.0.11:8302
+alive: consul-s1.dc1 172.18.0.10:8302
+clock: 4
+alive: consul-s3.dc1 172.18.0.12:8302
+alive: consul-s2.dc1 172.18.0.11:8302
+alive: consul-s1.dc1 172.18.0.10:8302
+clock: 5
+alive: consul-s3.dc1 172.18.0.12:8302
+alive: consul-s2.dc1 172.18.0.11:8302
+alive: consul-s1.dc1 172.18.0.10:8302
+clock: 6
+alive: consul-s3.dc1 172.18.0.12:8302
+alive: consul-s2.dc1 172.18.0.11:8302
+alive: consul-s1.dc1 172.18.0.10:8302
+clock: 7
+alive: consul-s3.dc1 172.18.0.12:8302
+alive: consul-s2.dc1 172.18.0.11:8302
+alive: consul-s1.dc1 172.18.0.10:8302
+clock: 8
+alive: consul-s3.dc1 172.18.0.12:8302
+alive: consul-s2.dc1 172.18.0.11:8302
+alive: consul-s1.dc1 172.18.0.10:8302
+clock: 9
+alive: consul-s3.dc1 172.18.0.12:8302
+alive: consul-s2.dc1 172.18.0.11:8302
+alive: consul-s1.dc1 172.18.0.10:8302
+clock: 10
+alive: consul-s3.dc1 172.18.0.12:8302
+alive: consul-s2.dc1 172.18.0.11:8302
+alive: consul-s1.dc1 172.18.0.10:8302
+clock: 11
+alive: consul-s3.dc1 172.18.0.12:8302
+alive: consul-s1.dc1 172.18.0.10:8302
+alive: consul-s2.dc1 172.18.0.11:8302
+clock: 12
+alive: consul-s3.dc1 172.18.0.12:8302
+alive: consul-s1.dc1 172.18.0.10:8302
+alive: consul-s2.dc1 172.18.0.11:8302
+clock: 13
+alive: consul-s3.dc1 172.18.0.12:8302
+alive: consul-s3.dc1 172.18.0.12:8302
+alive: consul-s1.dc1 172.18.0.10:8302
+alive: consul-s2.dc1 172.18.0.11:8302
+clock: 14
+alive: consul-s3.dc1 172.18.0.12:8302
+alive: consul-s1.dc1 172.18.0.10:8302
+alive: consul-s2.dc1 172.18.0.11:8302
+clock: 15
+alive: consul-s3.dc1 172.18.0.12:8302
+alive: consul-s1.dc1 172.18.0.10:8302
+alive: consul-s2.dc1 172.18.0.11:8302
+clock: 16

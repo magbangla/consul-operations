@@ -1,0 +1,27 @@
+---
+#create vault kv on each cluster
+- name: create vault kv path
+  shell: |
+    curl -k --header --request PUT "X-Consul-Token: 29a7957c-d6a2-ae6f-67f4-d23a078f2294"  https://192.168.0.5:8501/v1/kv/vault/
+  register: res
+- debug:
+    var: "{{res | to_json}}"
+- name: create vault kv path
+  shell: |
+    docker exec -t \
+    -e CONSUL_HTTP_ADDR="https://127.0.0.1:8501" \
+    -e CONSUL_CACERT="/consul/config/tls/ca/matt-WIN-OB1AQQ4B7P1-CA.cer" \
+    -e CONSUL_CLIENT_CERT="/consul/config/tls/certs/client-consul-c.DC1.consul.matt.lab.pem" \
+    -e CONSUL_CLIENT_KEY="/consul/config/tls/certs/client-consul-c.DC1.consul.matt.lab.key" \
+    -e CONSUL_HTTP_TOKEN="8ef95fb3-486c-6b22-f120-979bc112d1b7" \
+    {{item}}consul kv put vault/
+  loop:
+    - consul-c
+    - consul-dc2-c
+  register: res
+
+- debug:
+    var: "{{res}}"
+- name: create policy for vault
+
+- name: generate token for vault

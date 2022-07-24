@@ -1,0 +1,251 @@
+---
+# - name: manage consul
+#   include_tasks: manage_consul.yml
+
+- name: create policy file {{data.node_name}}
+  ansible.builtin.shell: |
+    docker exec -ti \
+    -e CONSUL_HTTP_ADDR="https://127.0.0.1:8501" \
+    -e CONSUL_CACERT="/consul/config/tls/ca/matt-WIN-OB1AQQ4B7P1-CA.cer" \
+    -e CONSUL_CLIENT_CERT="/consul/config/tls/certs/client-{{data.service_name}}.{{data.dc}}.consul.matt.lab.pem" \
+    -e CONSUL_CLIENT_KEY="/consul/config/tls/certs/client-{{data.service_name}}.{{data.dc}}.consul.matt.lab.key" \
+    -e CONSUL_HTTP_TOKEN="8ef95fb3-486c-6b22-f120-979bc112d1b7" \
+    consul-c consul acl token list \
+  loop: "{{services_data.configs}}"
+  loop_control:
+    loop_var: data
+  tags: 
+    - deploy_consul_tasks
+# tasks file for consul_datacenter
+- name: create consul group on {{inventory_hostname}}
+  ansible.builtin.group:
+    name: consul
+    state: present
+  tags: 
+    - deploy_consul_tasks
+
+- name: create consul user on {{inventory_hostname}}
+  ansible.builtin.user:
+    name: consul
+    shell: /bin/bash
+    groups: docker
+    append: yes
+  tags: 
+    - deploy_consul_tasks
+
+- name: check if docker network exist on {{inventory_hostname}}
+  ansible.builtin.shell: >
+    docker network ls | grep consul-dc1-network
+  register: rs
+  ignore_errors: true
+  tags: 
+    - deploy_consul_tasks
+- name: create docker network on {{inventory_hostname}}
+  ansible.builtin.shell: |
+    docker network create --driver bridge consul-dc1-network --subnet 192.168.0.0/28 --gateway 192.168.0.1
+  when: "{{rs.rc==1}}"
+  tags: 
+    - deploy_consul_tasks
+- name: check if docker network exist on {{inventory_hostname}}
+  ansible.builtin.shell: >
+    docker network ls | grep consul-dc2-network
+  register: rs
+  ignore_errors: true
+  tags: 
+    - deploy_consul_tasks
+- name: create docker network on {{inventory_hostname}}
+  ansible.builtin.shell: |
+    docker network create --driver bridge consul-dc2-network --subnet 192.168.0.16/28 --gateway 192.168.0.17
+  when: "{{rs.rc==1}}"
+  tags: 
+    - deploy_consul_tasks
+- name: create data and configs folder on {{inventory_hostname}}
+  ansible.builtin.file:
+    path: "{{item}}"
+    state: directory
+    owner: consul
+    group: docker
+    mode: 0770
+  loop:
+    - "{{ data_dir }}"
+    - "{{ config_dir }}"
+  tags: 
+    - deploy_consul_tasks
+- debug:
+    msg: "{{item.volume_map_list[0] | split(':') | first}}"
+  loop: "{{ services_data.configs }}"
+  tags: 
+    - deploy_consul_tasks
+- name: create data folder on {{inventory_hostname}}
+  ansible.builtin.file:
+    path: "{{item.volume_map_list[0] | split(':') | first}}"
+    state: directory
+    owner: consul
+    group: docker
+    mode: 0770
+  loop: "{{ services_data.configs }}"
+  tags: 
+    - deploy_consul_tasks
+- name: create configs folder on {{inventory_hostname}}
+  ansible.builtin.file:
+    path: "{{item.volume_map_list[1] | split(':') | first}}"
+    state: directory
+    owner: consul
+    group: docker
+    mode: 0770
+  loop: "{{services_data.configs}}"
+  tags: 
+    - deploy_consul_tasks
+- name: create configs tls certs folder on {{inventory_hostname}}
+  ansible.builtin.file:
+    path: "{{item.volume_map_list[1] | split(':') | first + '/tls/certs'}}"
+    state: directory
+    owner: consul
+    group: docker
+    mode: 0770
+  loop: "{{services_data.configs}}"
+  tags: 
+    - deploy_consul_tasks
+- name: create configs tls ca folder on {{inventory_hostname}}
+  ansible.builtin.file:
+    path: "{{item.volume_map_list[1] | split(':') | first + '/tls/ca'}}"
+    state: directory
+    owner: consul
+    group: docker
+    mode: 0770
+  loop: "{{services_data.configs}}"
+  tags: 
+    - deploy_consul_tasks
+- name: copy ca cert to tls/ca folder on {{inventory_hostname}}
+  ansible.builtin.copy:
+    src: "files/matt-WIN-OB1AQQ4B7P1-CA.cer"
+    dest: "{{item.volume_map_list[1] | split(':') | first + '/tls/ca/'}}"
+    mode: 0644
+  loop: "{{services_data.configs}}"
+  tags: 
+    - deploy_consul_tasks
+
+- name: copy ca cert to tls/ca folder on {{inventory_hostname}}
+  ansible.builtin.copy:
+    src: "files/privatekey.pem"
+    dest: "/tmp"
+    mode: 0644
+  tags: 
+    - deploy_consul_tasks
+- name: generate certificate for consul servers on {{inventory_hostname}}
+  include_tasks: generate_server_certs.yml
+  when: "{{ data.server == 'true' | bool}}"
+  loop: "{{services_data.configs}}"
+  loop_control:
+    loop_var: data
+  tags: 
+    - deploy_consul_tasks
+- name: generate certificate for consul client on {{inventory_hostname}}
+  include_tasks: generate_client_certs.yml
+  when: "{{ data.server == 'false' | bool}}"
+  loop: "{{services_data.configs}}"
+  loop_control:
+    loop_var: data
+  tags: 
+    - deploy_consul_tasks  
+- name: generate certificate for host to test {{inventory_hostname}}
+  include_tasks: generate_client_test.yml
+  tags: 
+    - deploy_consul_tasks
+- name: generate config files for consul services on {{inventory_hostname}}
+  ansible.builtin.template:
+    src: consul.server.config.j2
+    dest: "{{config_dir}}/{{data.service_name}}/{{data.service_name}}.json"
+  loop: "{{services_data.configs}}"
+  loop_control:
+    loop_var: data
+  tags: 
+    - deploy_consul_tasks
+
+- name: add checks on {{inventory_hostname}}
+  ansible.builtin.template:
+    src: consul_datacenter/templates/check.json.j2
+    dest: "{{config_dir}}/{{data.service_name}}/{{data.service_name}}.ckeck.json"
+  loop: "{{services_data.configs}}"
+  loop_control:
+    loop_var: data
+  tags: 
+    - deploy_consul_tasks
+
+- name: add acl on {{data.service_name}}
+  ansible.builtin.template:
+    src: consul_datacenter/templates/acl.j2
+    dest: "{{config_dir}}/{{data.service_name}}/{{data.service_name}}.acl.json"
+  loop: "{{services_data.configs}}"
+  loop_control:
+    loop_var: data
+  tags: 
+    - deploy_consul_tasks
+
+- name: generate config tls files for consul agent on {{inventory_hostname}}
+  ansible.builtin.template:
+    src: tls-config.j2
+    dest: "{{config_dir}}/{{data.service_name}}/tls-{{data.service_name}}.json"
+  loop: "{{services_data.configs}}"
+  loop_control:
+    loop_var: data
+  tags: 
+    - deploy_consul_tasks
+
+- name: set permissions on tls folder on {{inventory_hostname}}
+  shell: |
+    chmod -R 775 /etc/consul/configs
+  tags: 
+    - deploy_consul_tasks
+
+- name: generate services files
+  ansible.builtin.template:
+    src: consul.service.tmp.j2
+    dest: /etc/systemd/system/{{data.service_name}}.service
+    owner: consul
+    group: docker
+    mode: 770
+  loop: "{{services_data.configs}}"
+  loop_control:
+    loop_var: data
+
+- name: relead systemd daemon
+  ansible.builtin.shell: |
+    systemctl daemon-reload
+
+- name: stop consul services
+  ansible.builtin.service:
+    name: "{{data.service_name}}.service"
+    state: stopped
+  loop: "{{services_data.configs}}"
+  loop_control:
+    loop_var: data
+- name: prune contqiner
+  ansible.builtin.shell: |
+    docker container prune --force
+    docker image prune --force
+
+- name: Start consul services
+  ansible.builtin.service:
+    name: "{{data.service_name}}.service"
+    state: started
+  loop: "{{services_data.configs}}"
+  loop_control:
+    loop_var: data
+
+- name: delete ca private key on {{inventory_hostname}}
+  ansible.builtin.file:
+    path: "/tmp/privatekey.pem"
+    state: absent
+
+# #generate policy for node
+# - name: generate policy file {{data.node_name}}
+#   ansible.builtin.template:
+#     src: node_policy.j2
+#     dest: "/tmp/acl-{{data.service_name}}-policy.json"
+#   loop: "{{services_data.configs}}"
+#   loop_control:
+#     loop_var: data
+#   tags: 
+#     - deploy_consul_tasks
+

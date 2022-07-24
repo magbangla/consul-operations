@@ -1,0 +1,39 @@
+---
+poliies:
+  - ressource: key_prefix
+    name: nom_ressource
+    policy: 
+      - read
+      - write
+      - deny
+      - list
+  - ressource: acl(=special)
+    name: nom_ressource
+    policy: 
+      - read
+      - write
+      - deny
+  - ressource: keyring(=special)
+    name: nom_ressource
+    policy: 
+      - read
+      - write
+      - deny
+  - ressource: mesh(=special)
+    name: nom_ressource
+    policy: 
+      - read
+      - write
+      - deny
+  - ressource: operator(=special)
+    name: nom_ressource
+    policy: 
+      - read
+      - write
+      - deny
+  - ressource: service or service_prefix
+    name: nom_ressource ou ""
+    policy: 
+      - read
+      - write
+      - deny

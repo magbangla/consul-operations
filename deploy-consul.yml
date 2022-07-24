@@ -1,0 +1,9 @@
+---
+- name: deploy consul cluster
+  hosts: lab_pc
+  become: True
+  gather_facts: false
+  vars:
+    test: True
+  roles:
+    - consul_datacenter

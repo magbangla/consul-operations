@@ -1,0 +1,41 @@
+---
+  - name: generate key pair for the consul agent for [SERVER] - {{data.service_name}}
+    community.crypto.openssl_privatekey:
+      path: "{{config_dir +'/'+  data.service_name +'/tls/certs/client-' + data.service_name + '.'+ data.dc + '.consul.matt.lab.key'}}"
+      size: 2048
+    loop: "{{services_data.configs}}"
+    register: key_pair
+
+  - name: Create certificate signing request (CSR) for new certificate for [CLIENT] - {{data.service_name}}
+    community.crypto.openssl_csr_pipe:
+      privatekey_path: "{{config_dir +'/'+  data.service_name +'/tls/certs/client-' + data.service_name + '.'+ data.dc + '.consul.matt.lab.key'}}"
+      common_name: "{{'client.'+ data.dc + '.consul.matt.lab'}}"
+      subject_alt_name:
+        - "DNS:client-{{data.service_name}}.{{data.dc}}.consul.matt.lab"
+        - "DNS:*.{{data.dc}}.consul.matt.lab"
+        - "DNS:localhost"
+        - "IP:127.0.0.1"
+    when: "{{ not data.server | bool}}"
+    #run_once: true
+    register: csr
+
+  - name: Sign certificate with our CA for [CLIENT] - {{data.service_name}}
+    community.crypto.x509_certificate_pipe:
+      csr_content: "{{ csr.csr }}"
+      provider: ownca
+      ownca_path: "{{config_dir +'/'+  data.service_name + '/tls/ca/matt-WIN-OB1AQQ4B7P1-CA.cer'}}"
+      ownca_privatekey_path: /tmp/privatekey.pem
+      #ownca_privatekey_passphrase: "{{ secret_ca_passphrase }}"
+      ownca_not_after: +365d  # valid for one year
+      ownca_not_before: "-1d"  # valid since yesterday
+    #run_once: true
+    when: "{{ not data.server | bool}}"
+    register: certificate
+
+
+  - name: Write certificate file for [CLIENT] - {{data.service_name}}
+    copy:
+      dest: "{{config_dir +'/'+  data.service_name +'/tls/certs/client-' + data.service_name + '.'+ data.dc + '.consul.matt.lab.pem'}}"
+      content: "{{ certificate.certificate }}"
+    when: "{{not data.server | bool}}"
+    #run_once: true

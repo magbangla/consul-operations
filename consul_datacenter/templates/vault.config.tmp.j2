@@ -1,0 +1,22 @@
+{
+	"api_addr": "{{data.api_addr}}",
+    "cluster_addr": "{{data.cluster_addr}}",
+	"storage": {
+	  "consul": {
+		"address": "{{data.ip_agent_consul}}:8500",
+		"token": "{{data.consul_token}}",
+		"path": "vault/"
+
+	  }
+	},
+	"listener": {
+	  "tcp":{
+		"address": "0.0.0.0:8200",
+		"cluster_addr": "{{data.cluster_addr}}",
+		"tls_disable": 1
+	  }
+	},
+	"ui": true
+  }
+  
+  

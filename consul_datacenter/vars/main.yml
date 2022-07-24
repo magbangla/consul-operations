@@ -1,0 +1,258 @@
+---
+# vars file for consul_datacenter
+data_dir: /var/consul/data
+config_dir: /etc/consul/configs
+vault_data_dir: /var/vault/data
+vault_config_dir: /etc/vault/configs
+consul_image: consul:1.12.2
+vault_image: vault:1.4.0
+
+
+services_data:
+  configs:
+    - consul: true
+      agent_token: efb4925c-bee0-ae05-f96e-2055ccb04612
+      service_name: consul-s1
+      dc: dc1
+      command: "agent"
+      ip: 192.168.0.2
+      volume_map_list:
+        - "{{data_dir}}/consul-s1:/consul/data"
+        - "{{config_dir}}/consul-s1:/consul/config"
+      port_map_list:  []
+      server: true
+      ui: false
+      node_name: consul_s1
+      primary: true
+      data_dir: /consul/data
+      encrypt: 862MOUel/po03m0XXKSegHqwWYUHS580rP39MDUaO5w=,
+      log_level: INFO,
+      addresses: "{ http : 0.0.0.0 }"
+      ui_config: "{ enabled: true }"
+      acl: "{ 
+          enabled: true,
+          default_policy: allow
+        }"
+      domain: consul.matt.lab
+      retry_join: '["consul-s1","consul-s2","consul-s3"]'
+
+    - consul: true
+      agent_token: 1c67dc65-f544-c54b-51a9-232e76250f61
+      service_name: consul-s2
+      dc: dc1
+      command: "agent"
+      ip: 192.168.0.3
+      volume_map_list:
+        - "{{data_dir}}/consul-s2:/consul/data"
+        - "{{config_dir}}/consul-s2:/consul/config"
+      port_map_list:  []
+      server: true
+      ui: false
+      node_name: consul_s2
+      primary: true
+      data_dir: /consul/data
+      encrypt: 862MOUel/po03m0XXKSegHqwWYUHS580rP39MDUaO5w=,
+      log_level: INFO,
+      addresses: "{ http : 0.0.0.0 }"
+      ui_config: "{ enabled: true }"
+      acl: "{ 
+          enabled: true,
+          default_policy: allow
+        }"
+      domain: consul.matt.lab
+      retry_join: '["consul-s1","consul-s2","consul-s3"]'
+    - consul: true
+      agent_token: 323fa63f-667b-8baa-5b02-a4b1dbdc26d7
+      service_name: consul-s3
+      dc: dc1
+      command: "agent"
+      ip: 192.168.0.4
+      volume_map_list:
+        - "{{data_dir}}/consul-s3:/consul/data"
+        - "{{config_dir}}/consul-s3:/consul/config"
+      port_map_list:  []
+      server: true
+      ui: false
+      node_name: consul_s3
+      primary: true
+      data_dir: /consul/data
+      encrypt: 862MOUel/po03m0XXKSegHqwWYUHS580rP39MDUaO5w=,
+      log_level: INFO,
+      addresses: "{ http : 0.0.0.0 }"
+      ui_config: "{ enabled: true }"
+      acl: "{ 
+          enabled: true,
+          default_policy: allow
+        }"
+      domain: consul.matt.lab
+      retry_join: '["consul-s1","consul-s2","consul-s3"]'
+    - consul: true
+      agent_token: 49198b11-551c-7736-bee9-5d7e05cfa968
+      service_name: consul-c
+      dc: dc1
+      command: "agent"
+      ip: 192.168.0.5
+      volume_map_list:
+        - "{{data_dir}}/consul-c:/consul/data"
+        - "{{config_dir}}/consul-c:/consul/config"
+      port_map_list:
+        - "8500:8500"
+        - "8600:8600/tcp"
+        - "8600:8600/udp"
+      server: false
+      ui: true
+      node_name: consul_c
+      primary: true
+      data_dir: /consul/data
+      encrypt: 862MOUel/po03m0XXKSegHqwWYUHS580rP39MDUaO5w=,
+      log_level: INFO,
+      addresses: "{ http : 0.0.0.0 }"
+      ui_config: "{ enabled: true }"
+      acl: "{ 
+          enabled: true,
+          default_policy: allow
+        }"
+      domain: consul.matt.lab
+      retry_join: '["consul-s1","consul-s2","consul-s3"]'
+
+    - consul: true
+      agent_token: 49198b11-551c-7736-bee9-5d7e05cfa968
+      service_name: consul-dc2-s1
+      dc: dc2
+      command: "agent"
+      ip: 192.168.0.18
+      volume_map_list:
+        - "{{data_dir}}/consul-dc2-s1:/consul/data"
+        - "{{config_dir}}/consul-dc2-s1:/consul/config"
+      port_map_list:  []
+      server: true
+      ui: false
+      node_name: consul_dc2_s1
+      primary: false
+      data_dir: /consul/data
+      encrypt: 862MOUel/po03m0XXKSegHqwWYUHS580rP39MDUaO5w=,
+      log_level: INFO,
+      addresses: "{ http : 0.0.0.0 }"
+      ui_config: "{ enabled: true }"
+      acl: "{ 
+          enabled: true,
+          default_policy: allow
+        }"
+      domain: consul.matt.lab
+      retry_join: '["consul-dc2-s1","consul-dc2-s2","consul-dc2-s3"]'
+
+    - consul: true
+      agent_token: 49198b11-551c-7736-bee9-5d7e05cfa968
+      service_name: consul-dc2-s2
+      dc: dc2
+      command: "agent"
+      ip: 192.168.0.19
+      volume_map_list:
+        - "{{data_dir}}/consul-dc2-s2:/consul/data"
+        - "{{config_dir}}/consul-dc2-s2:/consul/config"
+      port_map_list:  []
+      server: true
+      ui: false
+      node_name: consul_dc_s2
+      primary: false
+      data_dir: /consul/data
+      encrypt: 862MOUel/po03m0XXKSegHqwWYUHS580rP39MDUaO5w=,
+      log_level: INFO,
+      addresses: "{ http : 0.0.0.0 }"
+      ui_config: "{ enabled: true }"
+      acl: "{ 
+          enabled: true,
+          default_policy: allow
+        }"
+      domain: consul.matt.lab
+      retry_join: '["consul-s1","consul-s2","consul-s3"]'
+
+    - consul: true
+      agent_token: 49198b11-551c-7736-bee9-5d7e05cfa968
+      service_name: consul-dc2-s3
+      dc: dc2
+      command: "agent"
+      ip: 192.168.0.20
+      volume_map_list:
+        - "{{data_dir}}/consul-dc2-s3:/consul/data"
+        - "{{config_dir}}/consul-dc2-s3:/consul/config"
+      port_map_list: []
+      server: true
+      ui: false
+      node_name: consul_dc2_s3
+      
+      primary: false
+      data_dir: /consul/data
+      encrypt: 862MOUel/po03m0XXKSegHqwWYUHS580rP39MDUaO5w=,
+      log_level: INFO,
+      addresses: "{ http : 0.0.0.0 }"
+      ui_config: "{ enabled: true }"
+      acl: "{ 
+          enabled: true,
+          default_policy: allow
+        }"
+      domain: consul.matt.lab
+      retry_join: '["consul-dc2-s1","consul-dc2-s2","consul-dc2-s3"]'
+
+    - consul: true
+      agent_token: 49198b11-551c-7736-bee9-5d7e05cfa968
+      service_name: consul-dc2-c
+      dc: dc2
+      command: "agent"
+      ip: 192.168.0.21
+      volume_map_list:
+        - "{{data_dir}}/consul-dc2-c:/consul/data"
+        - "{{config_dir}}/consul-dc2-c:/consul/config"
+      port_map_list:
+        - "8502:8500"
+        - "8602:8600/tcp"
+        - "8602:8600/udp"
+      server: false
+      ui: true
+      node_name: consul_dc2_c
+      primary: false
+      data_dir: /consul/data
+      encrypt: 862MOUel/po03m0XXKSegHqwWYUHS580rP39MDUaO5w=,
+      log_level: INFO,
+      addresses: "{ http : 0.0.0.0 }"
+      ui_config: "{ enabled: true }"
+      acl: "{ 
+          enabled: true,
+          default_policy: allow
+        }"
+      domain: consul.matt.lab
+      retry_join: '["consul-dc2-s1","consul-dc2-s2","consul-dc2-s3"]'
+
+vault_data:
+  cluster:
+    - ip_agent_consul: consul-dc1-c
+      consul: false
+      api_addr: "http://192.168.0.5:8200"
+      cluster_addr: "https://192.168.0.5:8201"
+      service_name: vault-server
+      consul_token: "8ef95fb3-486c-6b22-f120-979bc112d1b7"
+      dc: dc1
+      server: true
+      node_name: vault-server
+      command: "vault server -config /vault/config"
+      ip: 192.168.0.6
+      volume_map_list:
+        - "{{vault_data_dir}}/vault-server-logs:/vault/logs"
+        - "{{vault_config_dir}}/vault-server:/vault/config"
+      port_map_list:
+        - "8200:8200"
+    - ip_agent_consul: consul-dc2-c
+      api_addr: "http://192.168.0.22:8200"
+      cluster_addr: "https://192.168.0.22:8201"
+      service_name: vault-server-1
+      consul_token: "29a7957c-d6a2-ae6f-67f4-d23a078f2294"
+      consul: false
+      node_name: vault-server-1
+      dc: dc2
+      command: "vault server -config /vault/config"
+      ip: 192.168.0.22
+      volume_map_list:
+        - "{{vault_data_dir}}/vault-server-1-logs:/vault/logs"
+        - "{{vault_config_dir}}/vault-server-1:/vault/config"
+      port_map_list:
+        - "8201:8200"

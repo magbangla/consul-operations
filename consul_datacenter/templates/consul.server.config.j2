@@ -1,0 +1,29 @@
+{
+    {% if data.server | bool %}
+    "bootstrap_expect": 3,
+    "server": {{data.server | lower }},
+    {% endif %}
+    "node_name": "{{data.node_name}}.consul.matt.lab",
+    "datacenter": "{{data.dc}}",
+    {% if data.primary %}
+        "primary_datacenter": "{{data.dc}}",
+    {% endif %}
+
+    "ui_config": {
+        "enabled" : {{data.ui | lower }}
+    },
+    "data_dir": "{{data.data_dir}}",
+    "addresses": {
+        "http" : "0.0.0.0",
+        "https": "0.0.0.0"
+    },
+    "retry_join": {{data.retry_join}},
+    "encrypt": "862MOUel/po03m0XXKSegHqwWYUHS580rP39MDUaO5w=",
+    "domain": "{{data.domain}}",
+    "enable_local_script_checks": true,
+    "telemetry": {
+    "dogstatsd_addr": "localhost:8125",
+    "disable_hostname": true
+    }
+
+}

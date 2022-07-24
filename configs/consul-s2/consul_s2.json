@@ -1,0 +1,22 @@
+{
+	"bootstrap_expect": 3,
+	"bind_addr": "172.18.0.11",
+	"node_name": "consul-s2",
+	"server": true,
+	"datacenter": "DC1",
+	"data_dir": "/consul/data",
+	"encrypt": "862MOUel/po03m0XXKSegHqwWYUHS580rP39MDUaO5w=",
+	"log_level": "INFO",
+	"addresses": {
+        "http" : "0.0.0.0"
+    },
+	"domain": "ti",
+	"connect": {
+		"enabled": true
+	},
+	"acl": { 
+		"enabled": true,
+		"default_policy": "allow"
+	},
+    "retry_join": ["consul-s1","consul-s2","consul-s3"]
+}

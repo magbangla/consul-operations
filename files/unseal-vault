@@ -1,0 +1,88 @@
+Unseal Key 1: s9Rmr1zxZCexjp7EpHpa727OqLI1U5LmXfKWITA+BdW5
+Unseal Key 2: 7UC5voCRyqfvR+zaJ3dICBoRNhYCP52hOSFiHh1a7pjB
+Unseal Key 3: uXQNNWp59xfOjUSQeq2lBHGrYgYxNxvAP8nQn1O/6sCi
+Unseal Key 4: aUMCWn5bTqbuZEPVjE8ywOraP8b8jnhq1Hb2K1nuXKdL
+Unseal Key 5: kbVv1QtM2Uknzyyh8fQfBTgUMiH497TeJx2nzegAFwAX
+
+Initial Root Token: hvs.QQegoI11nulaIbwHPgzw2A8L
+
+Vault initialized with 5 key shares and a key threshold of 3. Please securely
+distribute the key shares printed above. When the Vault is re-sealed,
+restarted, or stopped, you must supply at least 3 of these keys to unseal it
+before it can start servicing requests.
+
+Vault does not store the generated root key. Without at least 3 keys to
+reconstruct the root key, Vault will remain permanently sealed!
+
+It is possible to generate new unseal keys, provided you have a quorum of
+existing unseal keys shares. See "vault operator rekey" for more information.
+
+
+
+Key                      Value
+---                      -----
+Nonce                    74a9c20b-d708-709c-ca54-73396adc4e90
+Started                  true
+Rekey Progress           0/3
+New Shares               1
+New Threshold            1
+Verification Required    false
+
+Key 1: Ljj//ObpQEbYA2GTLvHUtzAwEWC2LKii1DgOrJ7+tXo=
+
+export UNSEAL='Ljj//ObpQEbYA2GTLvHUtzAwEWC2LKii1DgOrJ7+tXo='
+Operation nonce: be67f36b-ed5e-72ca-4777-3ebd9f0af940
+
+export UNSEAL3=$(grep 'Unseal Key 3' .vault-init | awk '{print $NF}')
+for k in $UNSEAL1 $UNSEAL2 $UNSEAL3; do vault operator unseal $k; done
+
+vault operator generate-root -nonce=$RTG_NONCE $UNSEAL
+
+vault operator generate-root -decode=$(cat token) -otp=$RTG_OTP > root_token.txt
+
+/ # 
+/ # cat root_token.txt 
+s.0SV3lIDiC2qHHNKYi9UQqk23/ # vault login $(cat root_token.txt)
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run "vault login"
+again. Future Vault requests will automatically use this token.
+
+Key                  Value
+---                  -----
+token                s.0SV3lIDiC2qHHNKYi9UQqk23
+token_accessor       xmmXtc623h6MA90pepQ0SU1F
+token_duration       ∞
+token_renewable      false
+token_policies       ["root"]
+identity_policies    []
+policies             ["root"]
+/ # history
+   0 export VAULT_ADDR=http://127.0.0.1:8200/
+   1 operator generate-root
+   2 vault operator generate-root
+   3 vault operator generate-root -init
+   4 vault operator generate-root
+   5 vault read sys/mounts
+   6 vault operator generate-root -init
+   7 Ljj//ObpQEbYA2GTLvHUtzAwEWC2LKii1DgOrJ7+tXo=
+   8 vault operator generate-root -otp="qIvHDrmv35ZOdT6oX20azDs4nR" -decode
+   9 vault operator generate-root -otp="qIvHDrmv35ZOdT6oX20azDs4nR" -decode "BWNIJgc0PTcOOgAwVToDXwYkXn5dCWdAMTk"
+  10 vault token revoke hvs.QQegoI11nulaIbwHPgzw2A8L
+  11 vault operator generate-root -h
+  12 vault operator generate-root -init > init-output.txt
+  13 ls
+  14 cat init-output.txt 
+  15 vault operator generate-root -cancel
+  16 vault operator generate-root -init > init-output.txt
+  17 cat init-output.txt 
+  18 export RTG_NONCE=$(grep 'Nonce' init-output.txt | awk '{print $NF}')
+  19 export RTG_OTP=$(grep 'OTP' init-output.txt | awk '{print $NF}')
+  20 export UNSEAL='Ljj//ObpQEbYA2GTLvHUtzAwEWC2LKii1DgOrJ7+tXo='
+  21 vault operator generate-root -nonce=$RTG_NONCE $UNSEAL
+  22 echo A0Z9aj0BIC4JPDkLFCIYDXtvCHoEaT5SUGI > token
+  23 vault operator generate-root -decode=$(cat encoded_root.txt) \
+  24 vault operator generate-root -decode=$(cat token) -otp=$RTG_OTP > root_token.txt
+  25 cat root_token.txt 
+  26 vault login $(cat root_token.txt)
+  27 history
+/ # 

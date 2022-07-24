@@ -1,0 +1,18 @@
+{
+	"storage": {
+	  "consul": {
+		"address": "172.18.0.13:8500",
+		"token": "692d0dc3-4030-75e2-f425-94efd80d988c",
+		"path": "vault/"
+	  }
+	},
+	"listener": {
+	  "tcp":{
+		"address": "0.0.0.0:8200",
+		"tls_disable": 1
+	  }
+	},
+	"ui": true
+  }
+  
+  

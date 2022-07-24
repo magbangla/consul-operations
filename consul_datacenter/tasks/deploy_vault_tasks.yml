@@ -1,0 +1,185 @@
+---
+# - name: manage vault
+#   include_tasks: manage_vault.yml
+
+# tasks file for vault_datacenter
+- name: create vault group on {{inventory_hostname}}
+  ansible.builtin.group:
+    name: vault
+    state: present
+  tags: 
+    - deploy_vault_tasks
+- name: create vault user on {{inventory_hostname}}
+  ansible.builtin.user:
+    name: vault
+    shell: /bin/bash
+    groups: docker
+    append: yes
+  tags: 
+    - deploy_vault_tasks
+- name: create data and configs folder on {{inventory_hostname}}
+  ansible.builtin.file:
+    path: "{{item}}"
+    state: directory
+    owner: vault
+    group: docker
+    mode: 0770
+  loop:
+    - "{{ vault_data_dir }}"
+    - "{{ vault_config_dir }}"
+  tags: 
+    - deploy_vault_tasks
+- debug:
+    msg: "{{item.volume_map_list[0] | split(':') | first}}"
+  loop: "{{ vault_data.cluster }}"
+  tags: 
+    - deploy_vault_tasks
+- name: create data folder on {{inventory_hostname}}
+  ansible.builtin.file:
+    path: "{{item.volume_map_list[0] | split(':') | first}}"
+    state: directory
+    owner: vault
+    group: docker
+    mode: 0770
+  loop: "{{ vault_data.cluster }}"
+  tags: 
+    - deploy_vault_tasks
+- name: create configs folder on {{inventory_hostname}}
+  ansible.builtin.file:
+    path: "{{item.volume_map_list[1] | split(':') | first}}"
+    state: directory
+    owner: vault
+    group: docker
+    mode: 0770
+  loop: "{{vault_data.cluster}}"
+  tags: 
+    - deploy_vault_tasks
+- name: create configs tls certs folder on {{inventory_hostname}}
+  ansible.builtin.file:
+    path: "{{item.volume_map_list[1] | split(':') | first + '/tls/certs'}}"
+    state: directory
+    owner: vault
+    group: docker
+    mode: 0770
+  loop: "{{vault_data.cluster}}"
+  tags: 
+    - deploy_vault_tasks
+- name: create configs tls ca folder on {{inventory_hostname}}
+  ansible.builtin.file:
+    path: "{{item.volume_map_list[1] | split(':') | first + '/tls/ca'}}"
+    state: directory
+    owner: vault
+    group: docker
+    mode: 0770
+  loop: "{{vault_data.cluster}}"
+  tags: 
+    - deploy_vault_tasks
+- name: copy ca cert to tls/ca folder on {{inventory_hostname}}
+  ansible.builtin.copy:
+    src: "files/matt-WIN-OB1AQQ4B7P1-CA.cer"
+    dest: "{{item.volume_map_list[1] | split(':') | first + '/tls/ca/'}}"
+    mode: 0644
+  loop: "{{vault_data.cluster}}"
+
+
+# - name: copy ca cert to tls/ca folder on {{inventory_hostname}}
+#   ansible.builtin.copy:
+#     src: "files/privatekey.pem"
+#     dest: "/tmp"
+#     mode: 0644
+
+# - name: generate certificate for vault servers on {{inventory_hostname}}
+#   include_tasks: generate_server_certs.yml
+#   loop: "{{vault_data.cluster}}"
+#   loop_control:
+#     loop_var: data
+
+# - name: generate certificate for vault client on {{inventory_hostname}}
+#   include_tasks: generate_client_certs.yml
+#   loop: "{{vault_data.cluster}}"
+#   loop_control:
+#     loop_var: data
+  
+# - name: generate certificate for host to test {{inventory_hostname}}
+#   include_tasks: generate_client_test.yml
+
+- name: generate config files for vault services on {{inventory_hostname}}
+  ansible.builtin.template:
+    src: vault.config.tmp.j2
+    dest: "{{vault_config_dir}}/{{data.service_name}}/{{data.service_name}}.json"
+  loop: "{{vault_data.cluster}}"
+  loop_control:
+    loop_var: data
+  tags: 
+    - deploy_vault_tasks
+# - name: generate config tls files for vault agent on {{inventory_hostname}}
+#   ansible.builtin.template:
+#     src: tls-config.j2
+#     dest: "{{vault_config_dir}}/{{data.service_name}}/tls-{{data.service_name}}.json"
+#   loop: "{{vault_data.cluster}}"
+#   loop_control:
+#     loop_var: data
+
+# - name: set permissions on tls folder on {{inventory_hostname}}
+#   shell: |
+#     chmod -R 775 /etc/vault/configs
+
+
+
+# - name: generate config files for vault services
+#   ansible.builtin.template:
+#     src: vault.config.tmp.j2
+#     dest:
+#   loop: "{{vault_data.cluster}}"
+#   loop_control:
+#     loop_var: data
+
+# - name: generate hosts files
+#   ansible.builtin.template:
+#     src: host.ini.j2
+#     dest: "{{vault_config_dir}}/hosts"
+#     owner: vault
+#     group: docker
+#     mode: 770
+
+- name: generate services files
+  ansible.builtin.template:
+    src: consul.service.tmp.j2
+    dest: /etc/systemd/system/{{data.service_name}}.service
+    owner: vault
+    group: docker
+    mode: 770
+  loop: "{{vault_data.cluster}}"
+  loop_control:
+    loop_var: data
+  tags: 
+    - deploy_vault_tasks
+- name: relead systemd daemon
+  ansible.builtin.shell: |
+    systemctl daemon-reload
+  tags: 
+    - deploy_vault_tasks
+- name: stop vault services
+  ansible.builtin.service:
+    name: "{{data.service_name}}.service"
+    state: stopped
+  loop: "{{vault_data.cluster}}"
+  loop_control:
+    loop_var: data
+  tags: 
+    - deploy_vault_tasks
+- name: Start vault services
+  ansible.builtin.service:
+    name: "{{data.service_name}}.service"
+    state: started
+  loop: "{{vault_data.cluster}}"
+  loop_control:
+    loop_var: data
+  tags: 
+    - deploy_vault_tasks
+- name: delete ca private key on {{inventory_hostname}}
+  ansible.builtin.file:
+    path: "/tmp/privatekey.pem"
+    state: absent
+  tags: 
+    - deploy_vault_tasks

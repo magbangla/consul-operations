@@ -1,0 +1,43 @@
+---
+- name: copy ca cert to tls/ca folder on {{inventory_hostname}}
+  ansible.builtin.copy:
+    src: "files/matt-WIN-OB1AQQ4B7P1-CA.cer"
+    dest: "/home/consul/"
+    mode: 0644
+#generate client certificat for test
+- name: generate key pair for the consul agent for [CLIENT-TEST]
+  community.crypto.openssl_privatekey:
+    path: "{{'/home/consul/client1.consul.matt.lab.key'}}"
+    size: 2048
+  register: key_pair
+
+- name: Create certificate signing request (CSR) for new certificate for [CLIENT-TEST]
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: "{{'/home/consul/client1.consul.matt.lab.key'}}"
+    common_name: "{{'client.consul.matt.lab'}}"
+    subject_alt_name:
+      - "DNS:client1.consul.matt.lab"
+      - "DNS:*.consul.matt.lab"
+      - "DNS:localhost"
+      - "IP:127.0.0.1"
+  #run_once: true
+  register: csr
+
+- name: Sign certificate with our CA for [CLIENT-TEST]
+  community.crypto.x509_certificate_pipe:
+    csr_content: "{{ csr.csr }}"
+    provider: ownca
+    ownca_path: "/home/consul/matt-WIN-OB1AQQ4B7P1-CA.cer"
+    ownca_privatekey_path: /tmp/privatekey.pem
+    #ownca_privatekey_passphrase: "{{ secret_ca_passphrase }}"
+    ownca_not_after: +365d  # valid for one year
+    ownca_not_before: "-1d"  # valid since yesterday
+  #run_once: true
+  register: certificate
+
+
+- name: Write certificate file for [CLIENT-TEST]
+  copy:
+    dest: "/home/consul/client1.consul.matt.lab.pem"
+    content: "{{ certificate.certificate }}"
+  #run_once: true

@@ -1,0 +1,27 @@
+{{ '[Unit]' }}
+Description=Consul container
+After=docker.service
+Wants=network-online.target docker.socket
+Requires=docker.socket
+
+{{ '[Service]' }}
+Restart=always
+User={% if data.consul %} consul {% else %} vault {% endif %} 
+PIDFile=/var/run/consul/consul.pid
+ExecStartPre=/bin/bash -c "/usr/bin/docker container inspect {{ data.service_name }} 2> /dev/null || /usr/bin/docker run -d \
+ {% for item in services_data.configs %}
+--add-host {{item.service_name}}:{{item.ip}} \
+{% endfor %}
+--name {{ data.service_name }} \
+--privileged {% for port_map in data.port_map_list %} -p {{ port_map }} {% endfor %}\
+ {% for volume_map in data.volume_map_list %} -v {{ volume_map }} {% endfor %} \
+ --network  {% if data.dc=='dc1' %} consul-dc1-network {% else %} consul-dc2-network {% endif %} \
+ --memory 256m \
+ --cap-add=IPC_LOCK \
+ --ip {{ data.ip }} {% if data.consul %} {{ consul_image }} {% else %} {{ vault_image }} {% endif %} {{ data.command }}"
+
+ExecStart=/usr/bin/docker start -a {{ data.service_name }}
+ExecStop=/usr/bin/docker stop -t 10 {{ data.service_name }}
+
+{{ '[Install]' }}
+WantedBy=multi-user.target

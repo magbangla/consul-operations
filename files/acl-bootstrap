@@ -1,0 +1,10 @@
+AccessorID:       bc149ec2-1ff7-4980-b4fb-e4a07af9097e
+SecretID:         96eb8446-8d7a-9e1c-a49c-e943f29fbc68
+Description:      Bootstrap Token (Global Management)
+Local:            false
+Create Time:      2022-06-04 23:09:41.546334306 +0000 UTC
+Policies:
+   00000000-0000-0000-0000-000000000001 - global-management
+
+export CONSUL_HTTP_TOKEN=96eb8446-8d7a-9e1c-a49c-e943f29fbc68
+export CONSUL_API=http://localhost:8500

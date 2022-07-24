@@ -1,0 +1,2 @@
+---
+docker consul acl policy create -name "{{token_name}}" -description "{{description}}" -rules @rules.hcl -token "==="

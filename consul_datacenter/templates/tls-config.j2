@@ -1,0 +1,19 @@
+{
+    "verify_incoming": true,
+    "verify_outgoing": true,
+    "verify_server_hostname": true,
+    "verify_incoming_rpc": true,
+    "ca_file": "consul/config/tls/ca/matt-WIN-OB1AQQ4B7P1-CA.cer",
+    {% if data.server %}
+    "cert_file": "{{'consul/config/tls/certs/server-' + data.service_name + '.'+ data.dc + '.consul.matt.lab.pem'}}",
+    "key_file": "{{'consul/config/tls/certs/server-' + data.service_name +  '.'+ data.dc + '.consul.matt.lab.key'}}",
+    {% else %}
+    "cert_file": "{{'consul/config/tls/certs/client-' + data.service_name + '.'+ data.dc + '.consul.matt.lab.pem'}}",
+    "key_file": "{{'consul/config/tls/certs/client-' + data.service_name +  '.'+ data.dc + '.consul.matt.lab.key'}}",
+    {% endif %}
+    "ports": {
+        "http": 8500,
+        "https": 8501
+    }
+    
+}

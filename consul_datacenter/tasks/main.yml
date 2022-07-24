@@ -1,0 +1,10 @@
+---
+- name: include deploy consul tasks {{inventory_hostname}}
+  include_tasks: deploy_consul_tasks.yml
+  tags: 
+    - deploy_consul_tasks
+
+- name: include deploy vault tasks {{inventory_hostname}}
+  include_tasks: deploy_vault_tasks.yml
+  tags: 
+    - deploy_vault_tasks
