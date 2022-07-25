@@ -1,21 +1,6 @@
 ---
 # - name: manage consul
 #   include_tasks: manage_consul.yml
-
-- name: create policy file {{data.node_name}}
-  ansible.builtin.shell: |
-    docker exec -ti \
-    -e CONSUL_HTTP_ADDR="https://127.0.0.1:8501" \
-    -e CONSUL_CACERT="/consul/config/tls/ca/matt-WIN-OB1AQQ4B7P1-CA.cer" \
-    -e CONSUL_CLIENT_CERT="/consul/config/tls/certs/client-{{data.service_name}}.{{data.dc}}.consul.matt.lab.pem" \
-    -e CONSUL_CLIENT_KEY="/consul/config/tls/certs/client-{{data.service_name}}.{{data.dc}}.consul.matt.lab.key" \
-    -e CONSUL_HTTP_TOKEN="8ef95fb3-486c-6b22-f120-979bc112d1b7" \
-    consul-c consul acl token list \
-  loop: "{{services_data.configs}}"
-  loop_control:
-    loop_var: data
-  tags: 
-    - deploy_consul_tasks
 # tasks file for consul_datacenter
 - name: create consul group on {{inventory_hostname}}
   ansible.builtin.group:
